@@ -5,9 +5,10 @@
 // @grant       none
 // @version     1.0
 // @author      MarcosTypeAP
-// @description Adds a slider to the youtube video player to feel the volume changes more naturally.
+// @description Adds a slider to the YouTube video player to feel the volume change more naturally.
 // @run-at document-end
 // @noframes
+// @downloadURL https://github.com/MarcosTypeAP/BetterYoutubeVolumeControl/raw/main/better-yt-vol-ctrl.user.js
 // ==/UserScript==
 
 // Storage data samples:
