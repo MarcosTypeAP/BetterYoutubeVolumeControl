@@ -31,10 +31,7 @@ function main() {
         ytPlayerVolumeData = JSON.parse(localStorage.getItem('yt-player-volume'))
     }
 
-    window.ytVideoCustomVolume = localStorage.getItem('custom-player-volume')
-    window.ytVideoCustomVolume = window.ytVideoCustomVolume
-		? window.ytVideoCustomVolume
-		: 0.4
+    window.ytVideoCustomVolume = localStorage.getItem('custom-player-volume') ?? 0.4
 
     getVideo().onplay = event => {
         document.querySelector('.ytp-chapter-container').style.flexBasis = "30%"
