@@ -3,75 +3,79 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://www.youtube.com/*
 // @grant       none
-// @version     1.0
+// @version     2.0
 // @author      MarcosTypeAP
-// @description Adds a slider to the YouTube video player to feel the volume change more naturally.
+// @description Adds a slider to the youtube video player to feel the volume changes more naturally.
 // @run-at document-end
 // @noframes
 // @downloadURL https://github.com/MarcosTypeAP/BetterYoutubeVolumeControl/raw/main/better-yt-vol-ctrl.user.js
 // ==/UserScript==
 
-// Storage data samples:
-//
-//     yt-player-volume: {"data":"{\"volume\":7,\"muted\":false}","creation":1648648184259}
-//     yt-player-volume: {"data":"{\"volume\":7,\"muted\":false}","expiration":1651335718207,"creation":1648743718207}
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms)
+    })
+}
 
-function main() {
+async function main() {
     'use strict'
 
-	const getExponentialVolume = volume => volume ** 2 // to notice volume increases more naturally
-    const getVideo = () => document.querySelector('#movie_player .video-stream') // if video tag changes
+    let retries = 100
+
     const ytLeftControls = document.querySelector('.ytp-left-controls')
+
     if (!ytLeftControls) {
-        setTimeout(main, 200)
+        if (retries) {
+            await sleep(200)
+            retries--
+        }
+
         return
     }
 
-    let ytPlayerVolumeData = JSON.parse(sessionStorage.getItem('yt-player-volume'))
-    if (!ytPlayerVolumeData) {
-        ytPlayerVolumeData = JSON.parse(localStorage.getItem('yt-player-volume'))
-    }
+    const videoPlayer = document.querySelector(".html5-video-player")
 
-    window.ytVideoCustomVolume = localStorage.getItem('custom-player-volume') ?? 0.4
-
-    getVideo().onplay = event => {
-        document.querySelector('.ytp-chapter-container').style.flexBasis = "30%"
-        for (let milliseconds=50; milliseconds<3000; milliseconds+=50) {
-            setTimeout(() => {
-                event.srcElement.muted = false
-                event.srcElement.volume = window.ytVideoCustomVolume
-            }, milliseconds)
+    if (!videoPlayer) {
+        if (retries) {
+            await sleep(200)
+            retries--
         }
+
+        return
     }
+
+	const setVolume = (volume) => videoPlayer.setVolume((volume ** 2) * 100) // to notice that the volume increases more naturally
+
+    const getVideo = () => document.querySelector('#movie_player .video-stream') // if video tag changes
+
+    getVideo().onplay = () => {
+        document.querySelector('.ytp-chapter-container').style.flexBasis = "30%"
+
+        getVideo().focus()
+    }
+
+    const customVideoVolume = localStorage.getItem('custom-player-volume') ?? 0.4
+
+    setVolume(customVideoVolume)
 
     const newVolumeControl = document.createElement('input')
     newVolumeControl.setAttribute('type', 'range')
-    newVolumeControl.setAttribute('min', '0')
+    newVolumeControl.setAttribute('min', '0.099')
     newVolumeControl.setAttribute('max', '1')
     newVolumeControl.setAttribute('step', '0.001')
-    newVolumeControl.setAttribute('value', Math.sqrt(window.ytVideoCustomVolume))
+    newVolumeControl.setAttribute('value', customVideoVolume)
     newVolumeControl.style = 'width:30vw; height:43px; margin-left:20px;'
+
     newVolumeControl.oninput = () => {
-        window.ytVideoCustomVolume = getExponentialVolume(newVolumeControl.value)
-        getVideo().volume = window.ytVideoCustomVolume
+        setVolume(newVolumeControl.value)
     }
+
     newVolumeControl.onmouseup = () => {
         getVideo().focus()
     }
-    newVolumeControl.onchange = () => {
-        const newVolume = getExponentialVolume(newVolumeControl.value)
-        ytPlayerVolumeData = {
-            data: JSON.stringify({
-                volume: newVolume * 100, // to percentage
-                muted: false
-            }),
-            creation: new Date().getTime()
-        }
-        sessionStorage.setItem('yt-player-volume', JSON.stringify(ytPlayerVolumeData))
-        ytPlayerVolumeData.expiration = new Date().getTime() + 2592000000 // +1 Month
-        localStorage.setItem('yt-player-volume', JSON.stringify(ytPlayerVolumeData))
 
-        localStorage.setItem('custom-player-volume', newVolume)
+    newVolumeControl.onchange = () => {
+        localStorage.setItem('custom-player-volume', newVolumeControl.value)
     }
 
     ytLeftControls.appendChild(newVolumeControl)
@@ -84,11 +88,13 @@ function main() {
 		)
 
         if (hasArrowUpOrDownPressed && isMoviePlayerOrProgressBarActive) {
+
             if (event.key === 'ArrowUp') {
                 newVolumeControl.stepUp(10)
             } else if (event.key === 'ArrowDown') {
                 newVolumeControl.stepDown(10)
             }
+
             newVolumeControl.onchange()
             newVolumeControl.oninput()
             event.preventDefault()
