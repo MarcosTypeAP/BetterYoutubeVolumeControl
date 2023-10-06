@@ -137,8 +137,6 @@ function setupShortsSlider() {
 const observer = new MutationObserver(() => {
 
     const $shortsSlider = document.querySelector('.' + shortsSliderClassname)
-    const $watchSlider = document.querySelector('.' + watchSliderClassname)
-
 
     if ($shortsSlider) {
         $shortsSlider.style.visibility = "hidden"
@@ -150,6 +148,8 @@ const observer = new MutationObserver(() => {
 
             return
         }
+
+        const $watchSlider = document.querySelector('.' + watchSliderClassname)
 
         if ($watchSlider === null) {
             setupWatchSlider()
