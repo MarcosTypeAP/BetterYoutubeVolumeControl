@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://www.youtube.com/*
 // @grant       none
-// @version     3.0
+// @version     3.1
 // @author      MarcosTypeAP
 // @description Adds a slider to the youtube video player to feel the volume changes more naturally.
 // @run-at document-end
@@ -39,7 +39,7 @@ function setupWatchSlider() {
     $newVolumeControl.setAttribute("type", "range")
     $newVolumeControl.setAttribute("min", "0.099")
     $newVolumeControl.setAttribute("max", "1")
-    $newVolumeControl.setAttribute("step", "0.001")
+    $newVolumeControl.setAttribute("step", "0.005")
     $newVolumeControl.setAttribute("value", customVideoVolume)
 
     $newVolumeControl.style.width = "30vw"
@@ -109,7 +109,7 @@ function setupShortsSlider() {
     $newVolumeControl.setAttribute("type", "range")
     $newVolumeControl.setAttribute("min", "0.099")
     $newVolumeControl.setAttribute("max", "1")
-    $newVolumeControl.setAttribute("step", "0.001")
+    $newVolumeControl.setAttribute("step", "0.005")
     $newVolumeControl.setAttribute("value", getCustomVideoVolume())
 
     $newVolumeControl.style.width = "40vh"
